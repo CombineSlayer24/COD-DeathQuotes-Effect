@@ -776,7 +776,7 @@ if ( CLIENT ) then
 
         gameevent.Listen("player_spawn")
         hook.Add( "player_spawn", "COD_DEATHSCREEN_RESPAWN", function( data ) 
-            if deathcamera_effect:GetBool() then
+            if hook.GetTable().CalcView.COD_Deathcamera != nil then
                 hook.Remove("CalcView", "COD_Deathcamera")
             end
             -- Remove hooks upon spawning
