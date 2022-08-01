@@ -728,17 +728,17 @@ if ( CLIENT ) then
                         
                         local ply_ragdoll = ply:GetObserverTarget()
                         if !IsValid(ply_ragdoll) then ply_ragdoll = ply:GetRagdollEntity() end
-                        local pos = ply:EyePos()
+                        local pos, ang = ply:GetPos()+Vector(0,0,8), ply:EyeAngles()
                         local view = {}
                         if deathcamera_effect:GetInt() == 1 then
-                            view.angles = ply:EyeAngles() + Angle(-5,0,40)
+                            ang = ply:EyeAngles() + Angle(-5,0,40)
                         end
                         if ply_ragdoll and IsValid(ply_ragdoll) and !ply_ragdoll:IsPlayer() and ply_ragdoll.SetNoDraw then 
                             ply_ragdoll:SetNoDraw(true) 
-                            pos = ply_ragdoll:WorldSpaceCenter() + Vector(0, 0, 5)
+                            pos = ply_ragdoll:GetBonePosition(0) + Vector(0, 0, 5)
                         else return end
                         view.origin = pos
-                        
+                        view.angles = ang
                         
                         return view
                     end)
