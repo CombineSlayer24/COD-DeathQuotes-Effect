@@ -803,3 +803,10 @@ if ( CLIENT ) then
         end)
     end)
 end
+
+--[[ function SaveToJson()
+    if !file.Exists("",'DATA') then
+        file.CreateDir("")
+    end
+    file.Write("")
+end ]]--
