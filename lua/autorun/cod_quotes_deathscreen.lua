@@ -678,6 +678,7 @@ if ( CLIENT ) then
                     end
                 end
             end
+            print(quote)
 
             -- If the number is above 0, we active the death system
             if deathsystem:GetBool() then
@@ -702,8 +703,8 @@ if ( CLIENT ) then
                     5
                 }
 
-                if !deathsound:GetBool() then sndint = math.random(1,#sndtbl) end
-                print(sndtbl[sndint])
+                if !deathsound:GetBool() then sndint = math.random(#sndtbl) end
+                -- print(sndint, sndtbl[sndint])
                 ply:EmitSound(sndtbl[sndint] or 1)
                 ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), fadetbl[sndint] or 4.5, 100)
 
