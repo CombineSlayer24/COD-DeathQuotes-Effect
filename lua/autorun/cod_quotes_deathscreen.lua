@@ -6,7 +6,7 @@
 // credit for most of the basework of this addon to https://github.com/T0bycat/TLOU-Death-Screen-Effect
 // This was the inspiration of TLOU death screen
 local deathsystem = CreateClientConVar("cod_death_system", 1, true, false, "Enable the death system?", 0, 1)
-local deathsound = CreateClientConVar( "cod_death_sound", 1, true, false, "If 1, use COD2/MW2/MW3 Sound. If 2, use COD3 Sounds. If 3, use COD W@W Sound. if 4, use COD BO1 Sound. If 5, use COD BO2 sound. If 6, use AW sound. If 7, use MW2019 sound.", 1, 7 )
+local deathsound = CreateClientConVar( "cod_death_sound", 1, true, false, "If 1, use COD2/MW2/MW3 Sound. If 2, use COD3 Sounds. If 3, use COD W@W Sound. if 4, use COD BO1 Sound. If 5, use COD BO2 sound. If 6, use AW sound. If 7, use MW2019 sound.", 0, 7 )
 local cod_quotes = CreateClientConVar( "cod_death_quotes", 1, true, false, "Which quote set to use. 0- Disable quotes. 1 - Call Of Duty (Default). 2 - Call To Arms (COD2 Mod). 3 - Funny/Info. 4 - All", 0, 4 )
 local deathcamera_effect = CreateClientConVar( "cod_death_camera", 1, true, false, "0 - No Camera change. 1 - Camera will tilt. 2 - No camera tilt.", 0, 2 )
 
@@ -14,15 +14,11 @@ local function CoDQuoteSettings()
     spawnmenu.AddToolMenuOption( "Options", "CoD: Death Screen Quotes", "CoD: Death Screen Quotes", "Options", "", "", function( panel )
         panel:Help('Clientside options')
         panel:CheckBox('Enable Call Of Duty Deathscreen system?','cod_death_system')
-        -- panel:NumSlider('Death Camera', 'cod_death_camera', 0, 2, 0 )
-        -- panel:ControlHelp('Camera options upon death. \n\n0 - disable first person camera\n1 - Classic style tilting \n2 - No camera tilt')
         local cambox = panel:ComboBox("Death Camera", "cod_death_camera")
         cambox:SetSortItems(false)
         cambox:AddChoice("Disable first person camera", 0)
         cambox:AddChoice("Classic style tilting", 1)
         cambox:AddChoice("No camera tilt", 2)
-        -- panel:NumSlider('Death Screen Quotes', 'cod_death_quotes', 0, 4, 0)
-        -- panel:ControlHelp('0- Disable quotes\n1 - Call Of Duty (Default)\n2 - Call To Arms (COD2 Mod)\n3 - Funny/Info Quotes\n4 - All\n\n Custom user-made quotes will be implemented soon')
         local quotebox = panel:ComboBox("Death Quotes", "cod_death_quotes")
         quotebox:SetSortItems(false)
         quotebox:AddChoice("Disable quotes", 0)
@@ -30,10 +26,9 @@ local function CoDQuoteSettings()
         quotebox:AddChoice("Call To Arms (COD2 Mod)", 2)
         quotebox:AddChoice("Funny/Info Quotes", 3)
         quotebox:AddChoice("All", 4)
-        -- panel:NumSlider('Death Sound', 'cod_death_sound', 1, 7, 0)
-        -- panel:ControlHelp('1 - Call Of Duty 2 / Modern Warfare 2\n2 - Call Of Duty 3 (Multiple Sounds)\n3 - Call Of Duty: World At War\n4 - Call Of Duty: Black Ops 1\n5 - Call Of Duty: Black Ops 2\n6 - Call Of Duty: Advance Warfare\n7 - Call Of Duty: Modern Warfare 2019')
         local soundbox = panel:ComboBox("Death Sound", "cod_death_sound")
         soundbox:SetSortItems(false)
+        soundbox:AddChoice("Random", 0)
         soundbox:AddChoice("Call Of Duty 2 / Modern Warfare 2", 1)
         soundbox:AddChoice("Call Of Duty 3 (Multiple Sounds)", 2)
         soundbox:AddChoice("Call Of Duty: World At War", 3)
@@ -41,6 +36,12 @@ local function CoDQuoteSettings()
         soundbox:AddChoice("Call Of Duty: Black Ops 2", 5)
         soundbox:AddChoice("Call Of Duty: Advanced Warfare", 6)
         soundbox:AddChoice("Call Of Duty: Modern Warfare 2019", 7)
+        --[[ panel:NumSlider('Death Camera', 'cod_death_camera', 0, 2, 0 )
+        panel:ControlHelp('Camera options upon death. \n\n0 - disable first person camera\n1 - Classic style tilting \n2 - No camera tilt')
+        panel:NumSlider('Death Screen Quotes', 'cod_death_quotes', 0, 4, 0)
+        panel:ControlHelp('0- Disable quotes\n1 - Call Of Duty (Default)\n2 - Call To Arms (COD2 Mod)\n3 - Funny/Info Quotes\n4 - All\n\n Custom user-made quotes will be implemented soon')
+        panel:NumSlider('Death Sound', 'cod_death_sound', 1, 7, 0)
+        panel:ControlHelp('1 - Call Of Duty 2 / Modern Warfare 2\n2 - Call Of Duty 3 (Multiple Sounds)\n3 - Call Of Duty: World At War\n4 - Call Of Duty: Black Ops 1\n5 - Call Of Duty: Black Ops 2\n6 - Call Of Duty: Advance Warfare\n7 - Call Of Duty: Modern Warfare 2019') ]]
     end)
 end
 
@@ -650,7 +651,7 @@ if ( CLIENT ) then
     }
     local tbl_cod_nothing = {
         
-        " "
+        ""
     }
 
     gameevent.Listen( "entity_killed" )
@@ -681,46 +682,30 @@ if ( CLIENT ) then
             -- If the number is above 0, we active the death system
             if deathsystem:GetBool() then
 
---[[                 local randsndtbl = {
+                local sndint = deathsound:GetInt()
+                local sndtbl = {
                     "deathsounds/mw2_death.ogg",
-                    "deathsounds/cod3_death1.ogg",
-                    "deathsounds/cod3_death2.ogg",
-                    "deathsounds/cod3_death3.ogg",
-                    "deathsounds/cod3_death4.ogg",
-                    "deathsounds/cod3_death5.ogg",
-                    "deathsounds/waw_death.ogg",
+                    "deathsounds/cod3_death" .. math.random(5) .. ".ogg",
+                    "deathsounds/waw_death" .. math.random(2) .. ".ogg",
                     "deathsounds/bo1_death.ogg",
                     "deathsounds/bo2_death.ogg",
                     "deathsounds/aw_death.ogg",
                     "deathsounds/mw2019_death.ogg"
-                } ]]
+                }
+                local fadetbl = {
+                    4.5,
+                    6,
+                    3,
+                    3,
+                    4.5,
+                    3,
+                    5
+                }
 
-                if deathsound:GetInt() == 1 then
-                    ply:EmitSound('deathsounds/mw2_death.ogg')
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 4.5, 100)
-                elseif deathsound:GetInt() == 2 then
-                    ply:EmitSound('deathsounds/cod3_death'..math.random(1,5)..'.ogg', 100)
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 6, 100)
-                elseif deathsound:GetInt() == 3 then
-                    ply:EmitSound('deathsounds/waw_death'..math.random(1,2)..'.ogg')
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 3, 100)
-                elseif deathsound:GetInt() == 4 then
-                    ply:EmitSound('deathsounds/bo1_death.ogg')
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 3, 100)
-                elseif deathsound:GetInt() == 5 then
-                    ply:EmitSound('deathsounds/bo2_death.ogg')
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 4.5, 100)
-                elseif deathsound:GetInt() == 6 then
-                    ply:EmitSound('deathsounds/aw_death.ogg')
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 3, 100)
-                elseif deathsound:GetInt() == 7 then
-                    ply:EmitSound('deathsounds/mw2019_death.ogg')
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 5, 100)
-                end
---[[                 elseif deathsound:GetInt() == 8 then
-                    ply:EmitSound(randsndtbl[math.random(#randsndtbl)])
-                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), 5, 100)
-                end ]]
+                if !deathsound:GetBool() then sndint = math.random(1,#sndtbl) end
+                print(sndtbl[sndint])
+                ply:EmitSound(sndtbl[sndint] or 1)
+                ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), fadetbl[sndint] or 4.5, 100)
 
                 if deathcamera_effect:GetBool() then
 
