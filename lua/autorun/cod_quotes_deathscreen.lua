@@ -7,13 +7,15 @@
 // This was the inspiration of TLOU death screen
 local deathsystem = CreateClientConVar("cod_death_system", 1, true, false, "Enable the death system?", 0, 1)
 local deathsound = CreateClientConVar( "cod_death_sound", 1, true, false, "If 1, use COD2/MW2/MW3 Sound. If 2, use COD3 Sounds. If 3, use COD W@W Sound. if 4, use COD BO1 Sound. If 5, use COD BO2 sound. If 6, use AW sound. If 7, use MW2019 sound.", 0, 7 )
-local cod_quotes = CreateClientConVar( "cod_death_quotes", 1, true, false, "Which quote set to use. 0- Disable quotes. 1 - Call Of Duty (Default). 2 - Call To Arms (COD2 Mod). 3 - Funny/Info. 4 - All", 0, 4 )
+local cod_quotes = CreateClientConVar( "cod_death_quotes", 1, true, false, "Which quote set to use. 0 - Disable quotes. 1 - Call Of Duty (Default). 2 - Call To Arms (COD2 Mod). 3 - Funny/Info. 4 - All", 0, 4 )
 local deathcamera_effect = CreateClientConVar( "cod_death_camera", 1, true, false, "0 - No Camera change. 1 - Camera will tilt. 2 - No camera tilt.", 0, 2 )
+local screenfadeout = CreateClientConVar("cod_death_screenfade", 1, true, false, "Enable the screen fadeout on death? 0 - No screenfade, 1 - Screenfade on death.", 0, 1)
 
 local function CoDQuoteSettings()
     spawnmenu.AddToolMenuOption( "Options", "CoD: Death Screen Quotes", "CoD: Death Screen Quotes", "Options", "", "", function( panel )
         panel:Help('Clientside options')
         panel:CheckBox('Enable Call Of Duty Deathscreen system?','cod_death_system')
+        panel:CheckBox('Enable screen fadeout on death?','cod_death_screenfade')
         local cambox = panel:ComboBox("Death Camera", "cod_death_camera")
         cambox:SetSortItems(false)
         cambox:AddChoice("Disable first person camera", 0)
@@ -356,8 +358,8 @@ if ( CLIENT ) then
         "Use props to your advantage by blocking incoming enemy fire.",
         "'Mr. Salieri sends his regards' - Vito Scaletta",
         "'For the last ten years, all I done was kill. \nI killed for my country, I killed for my family, I killed anybody that got in my way' \n- Vito Scaletta",
-        "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed."
-        --"Throw grenades back at enemies before the grenade detonates"
+        "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed.",
+        "Throw grenades back at enemies before the grenade detonates."
     }
     local tbl_cod_all_quotes = {
         "'Never in the field of human conflict was so much owed by so many to so few.' - Winston Spencer-Churchill",
@@ -641,7 +643,8 @@ if ( CLIENT ) then
         "Use props to your advantage by blocking incoming enemy fire.",
         "'Mr. Salieri sends his regards' - Vito Scaletta",
         "'For the last ten years, all I done was kill. \nI killed for my country, I killed for my family, I killed anybody that got in my way' \n- Vito Scaletta",
-        "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed."
+        "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed.",
+        "Throw grenades back at enemies before the grenade detonates."
     }
     // used for the safeguard
     local tbl_cod_generic_quote = {
@@ -656,32 +659,30 @@ if ( CLIENT ) then
 
     gameevent.Listen( "entity_killed" )
     hook.Add("entity_killed", "deathsystem", function(data)
-        if data.entindex_killed == LocalPlayer():EntIndex() then
-            local ply = LocalPlayer()
-            local quote
+        if deathsystem:GetBool() then -- If the number is above 0, we active the death system
+            if data.entindex_killed == LocalPlayer():EntIndex() then
+                local ply = LocalPlayer()
+                local quote
 
-            -- Prevents the message "nil" from appearing
-            if !IsValid(Entity(data.entindex_inflictor)) or not Entity(data.entindex_inflictor):GetClass() then
-                quote = tbl_cod_generic_quote[math.random(#tbl_cod_generic_quote)]
-            else -- If we detect what killed us, then we display the quotes
-                if IsValid(Entity(data.entindex_inflictor)) then
-                    if cod_quotes:GetInt() == 0 then
-                        quote = tbl_cod_nothing[math.random(#tbl_cod_nothing)]
-                    elseif cod_quotes:GetInt() == 1 then
-                        quote = tbl_cod_quotes[math.random(#tbl_cod_quotes)]
-                    elseif cod_quotes:GetInt() == 2 then
-                        quote = tbl_cod_c2a_quotes[math.random(#tbl_cod_c2a_quotes)]
-                    elseif cod_quotes:GetInt() == 3 then
-                        quote = tbl_custom_quotes[math.random(#tbl_custom_quotes)]
-                    elseif cod_quotes:GetInt() == 4 then
-                        quote = tbl_cod_all_quotes[math.random(#tbl_cod_all_quotes)]
+                -- Prevents the message "nil" from appearing
+                if !IsValid(Entity(data.entindex_inflictor)) or not Entity(data.entindex_inflictor):GetClass() then
+                    quote = tbl_cod_generic_quote[math.random(#tbl_cod_generic_quote)]
+                else -- If we detect what killed us, then we display the quotes
+                    if IsValid(Entity(data.entindex_inflictor)) then
+                        if cod_quotes:GetInt() == 0 then
+                            quote = tbl_cod_nothing[math.random(#tbl_cod_nothing)]
+                        elseif cod_quotes:GetInt() == 1 then
+                            quote = tbl_cod_quotes[math.random(#tbl_cod_quotes)]
+                        elseif cod_quotes:GetInt() == 2 then
+                            quote = tbl_cod_c2a_quotes[math.random(#tbl_cod_c2a_quotes)]
+                        elseif cod_quotes:GetInt() == 3 then
+                            quote = tbl_custom_quotes[math.random(#tbl_custom_quotes)]
+                        elseif cod_quotes:GetInt() == 4 then
+                            quote = tbl_cod_all_quotes[math.random(#tbl_cod_all_quotes)]
+                        end
                     end
                 end
-            end
-            print(quote)
-
-            -- If the number is above 0, we active the death system
-            if deathsystem:GetBool() then
+                print(quote)
 
                 local sndint = deathsound:GetInt()
                 local sndtbl = {
@@ -696,7 +697,7 @@ if ( CLIENT ) then
                 local fadetbl = {
                     4.5,
                     6,
-                    3,
+                    3.6,
                     3,
                     4.5,
                     3,
@@ -706,7 +707,10 @@ if ( CLIENT ) then
                 if !deathsound:GetBool() then sndint = math.random(#sndtbl) end
                 -- print(sndint, sndtbl[sndint])
                 ply:EmitSound(sndtbl[sndint] or 1)
-                ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), fadetbl[sndint] or 4.5, 100)
+
+                if screenfadeout:GetBool() then 
+                    ply:ScreenFade(SCREENFADE.OUT, Color( 0, 0, 0, 255 ), fadetbl[sndint] or 4.5, 100)
+                end
 
                 if deathcamera_effect:GetBool() then
 
@@ -745,8 +749,8 @@ if ( CLIENT ) then
                     DrawToyTown( 1, ScrH() )
                 end)
 
-                -- Create a "reminder" message after 6 seconds ilding on the screen
-                timer.Create("COD_DEATHNOISE_AMB", 6, 1, function ()
+                -- Create a "reminder" message after fading to black.
+                timer.Create("COD_DEATHNOISE_AMB", fadetbl[sndint], 1, function ()
                     ply:EmitSound("deathsounds/deathstinger" .. math.random(2) .. ".ogg")
                     hook.Add("HUDPaint", "HOOK_COD_DEADREMINDER", function()
                         draw.DrawText("Press JUMP or MOUSE 1 to respawn!", "CloseCaption_Bold", scrw * 0.6, scrh * 0.8, Color(255,255,255))
