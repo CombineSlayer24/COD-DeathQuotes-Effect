@@ -646,12 +646,6 @@ if ( CLIENT ) then
         "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed.",
         "Throw grenades back at enemies before the grenade detonates."
     }
-    // used for the safeguard
-    local tbl_cod_generic_quote = {
-        
-        "You've been killed.",
-        "You have died!"
-    }
     local tbl_cod_nothing = {
         
         ""
@@ -666,7 +660,7 @@ if ( CLIENT ) then
 
                 -- Prevents the message "nil" from appearing
                 if !IsValid(Entity(data.entindex_inflictor)) or not Entity(data.entindex_inflictor):GetClass() then
-                    quote = tbl_cod_generic_quote[math.random(#tbl_cod_generic_quote)]
+                    quote = tbl_cod_all_quotes[math.random(#tbl_cod_all_quotes)]
                 else -- If we detect what killed us, then we display the quotes
                     if IsValid(Entity(data.entindex_inflictor)) then
                         if cod_quotes:GetInt() == 0 then
