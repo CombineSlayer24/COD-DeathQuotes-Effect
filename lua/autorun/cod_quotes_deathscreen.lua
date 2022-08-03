@@ -742,17 +742,12 @@ if ( CLIENT ) then
                 -- Add some nice Post-processing effects
                 hook.Add("RenderScreenspaceEffects", "COD_MotionBlurEffects", function()
                     DrawMotionBlur(0.1, 0.9, 0 )
-                    DrawBokehDOF( 1.25, 1, 3)
+                    DrawToyTown( 1, ScrH() )
                 end)
 
                 -- Create a "reminder" message after 6 seconds ilding on the screen
                 timer.Create("COD_DEATHNOISE_AMB", 6, 1, function ()
-                    local random_sound = math.random(1,2)
-                    if random_sound == 1 then
-                        ply:EmitSound('deathsounds/deathstinger1.ogg')
-                    elseif random_sound == 2 then
-                        ply:EmitSound('deathsounds/deathstinger2.ogg')
-                    end
+                    ply:EmitSound("deathsounds/deathstinger" .. math.random(2) .. ".ogg")
                     hook.Add("HUDPaint", "HOOK_COD_DEADREMINDER", function()
                         draw.DrawText("Press JUMP or MOUSE 1 to respawn!", "CloseCaption_Bold", scrw * 0.6, scrh * 0.8, Color(255,255,255))
                     end)
