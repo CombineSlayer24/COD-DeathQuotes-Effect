@@ -7,15 +7,17 @@
 // This was the inspiration of TLOU death screen
 local deathsystem = CreateClientConVar("cod_death_system", 1, true, false, "Enable the death system?", 0, 1)
 local deathsound = CreateClientConVar( "cod_death_sound", 1, true, false, "If 1, use COD2/MW2/MW3 Sound. If 2, use COD3 Sounds. If 3, use COD W@W Sound. if 4, use COD BO1 Sound. If 5, use COD BO2 sound. If 6, use AW sound. If 7, use MW2019 sound.", 0, 7 )
-local cod_quotes = CreateClientConVar( "cod_death_quotes", 1, true, false, "Which quote set to use. 0 - Disable quotes. 1 - Call Of Duty (Default). 2 - Call To Arms (COD2 Mod). 3 - Funny/Info. 4 - All", 0, 4 )
-local deathcamera_effect = CreateClientConVar( "cod_death_camera", 1, true, false, "0 - No Camera change. 1 - Camera will tilt. 2 - No camera tilt.", 0, 2 )
+local cod_quotes = CreateClientConVar( "cod_death_quotes", 1, true, false, "Which quote set to use. 0 - Disable quotes. 1 - Call Of Duty (Default). 2 - Call To Arms (COD2 Mod). 3 - Funny / Memes. 4 - Informational. 5 - Use All.", 0, 5 )
+local deathcamera_effect = CreateClientConVar( "cod_death_camera", 1, true, false, "0 - No Camera change. 1 - Camera tilt. 2 - No camera tilt.", 0, 2 )
 local screenfadeout = CreateClientConVar("cod_death_screenfade", 1, true, false, "Enable the screen fadeout on death? 0 - No screenfade, 1 - Screenfade on death.", 0, 1)
+local blureffects = CreateClientConVar("cod_death_screenblur", 1, true, false, "Enable the screen blur on death? 0 - No screenblur, 1 - Screenblur on death.", 0, 1)
 
 local function CoDQuoteSettings()
     spawnmenu.AddToolMenuOption( "Options", "CoD: Death Screen Quotes", "CoD: Death Screen Quotes", "Options", "", "", function( panel )
         panel:Help('Clientside options')
         panel:CheckBox('Enable Call Of Duty Deathscreen system?','cod_death_system')
         panel:CheckBox('Enable screen fadeout on death?','cod_death_screenfade')
+        panel:CheckBox('Enable screen blur effects on death?','cod_death_screenblur')
         local cambox = panel:ComboBox("Death Camera", "cod_death_camera")
         cambox:SetSortItems(false)
         cambox:AddChoice("Disable first person camera", 0)
@@ -26,8 +28,9 @@ local function CoDQuoteSettings()
         quotebox:AddChoice("Disable quotes", 0)
         quotebox:AddChoice("Call Of Duty (Default)", 1)
         quotebox:AddChoice("Call To Arms (COD2 Mod)", 2)
-        quotebox:AddChoice("Funny/Info Quotes", 3)
-        quotebox:AddChoice("All", 4)
+        quotebox:AddChoice("Funny / Memes", 3)
+        quotebox:AddChoice("Informational", 4)
+        quotebox:AddChoice("All", 5)
         local soundbox = panel:ComboBox("Death Sound", "cod_death_sound")
         soundbox:SetSortItems(false)
         soundbox:AddChoice("Random", 0)
@@ -38,17 +41,10 @@ local function CoDQuoteSettings()
         soundbox:AddChoice("Call Of Duty: Black Ops 2", 5)
         soundbox:AddChoice("Call Of Duty: Advanced Warfare", 6)
         soundbox:AddChoice("Call Of Duty: Modern Warfare 2019", 7)
-        --[[ panel:NumSlider('Death Camera', 'cod_death_camera', 0, 2, 0 )
-        panel:ControlHelp('Camera options upon death. \n\n0 - disable first person camera\n1 - Classic style tilting \n2 - No camera tilt')
-        panel:NumSlider('Death Screen Quotes', 'cod_death_quotes', 0, 4, 0)
-        panel:ControlHelp('0- Disable quotes\n1 - Call Of Duty (Default)\n2 - Call To Arms (COD2 Mod)\n3 - Funny/Info Quotes\n4 - All\n\n Custom user-made quotes will be implemented soon')
-        panel:NumSlider('Death Sound', 'cod_death_sound', 1, 7, 0)
-        panel:ControlHelp('1 - Call Of Duty 2 / Modern Warfare 2\n2 - Call Of Duty 3 (Multiple Sounds)\n3 - Call Of Duty: World At War\n4 - Call Of Duty: Black Ops 1\n5 - Call Of Duty: Black Ops 2\n6 - Call Of Duty: Advance Warfare\n7 - Call Of Duty: Modern Warfare 2019') ]]
     end)
 end
 
 hook.Add("PopulateToolMenu", "AddCODScreenSettings", CoDQuoteSettings)
-
 hook.Add("PlayerDeathSound", "DeFlatline", function() return true end) -- Removes the damn annoying beep beep beeep beeeeee sound.
 
 if ( CLIENT ) then
@@ -70,7 +66,7 @@ if ( CLIENT ) then
         outline = true,
     } )
 
-    local tbl_cod_quotes = {  
+    local tbl_callofduty_quotes = {  
         "'Never in the field of human conflict was so much owed by so many to so few.' - Winston Spencer-Churchill",
         "'Success is not final, failure is not fatal: it is the courage to continue that counts.' - Winston Spencer-Churchill",
         "'In war there is no prize for the runner-up.' - Omar N. Bradley, U.S. Army General",
@@ -122,10 +118,12 @@ if ( CLIENT ) then
         "'Soldiers usually win the battles and generals get the credit for them.' - Napoleon Bonaparte",
         "'I don't know whether war is an interlude during peace, or peace is an interlude during war.' - Georges Clemenceau",
         "'No one can guarantee success in war, but only deserve it.' - Winston Spencer-Churchill",
-        "'The military don't start wars. Politicians start wars.' - General William C. Westmoreland"
+        "'The military don't start wars. Politicians start wars.' - General William C. Westmoreland",
+        -- call of duty 3
+        "'I guess every generation is doomed to fight its war... suffer\nthe loss of the same old illusions, and learn the same old\nlessons on its own.'\n - Philip Caputo"
     }
     -- Professor DSD and his team for their COD2 mod
-    local tbl_cod_c2a_quotes = {
+    local tbl_callofduty2_c2a_quotes = {
         "'I alone cannot change the world, but I can cast a stone across the waters to create many ripples.' - Mother Teresa",
         "'You never know how strong you are until being strong is your only choice.' - Bob Marley",
         "'How glorious fall the valiant, sword in hand, in fornt of battle for their native land!' - King Agesilaus, Sparta",
@@ -327,8 +325,7 @@ if ( CLIENT ) then
         "'Look back over the past, with its changing empires that rose and fell,\n and you can foresee the future too.'\n\n - Marcus Aurelius",
         "'It takes twenty years or more of peace to make a man;\n it only takes twenty seconds of war to destroy them.'\n\n - King Baudouin I of Belgium"
     }
-    
-    local tbl_custom_quotes = {
+    local tbl_funny_quotes = {
         "'WHAT!!!!?????' - DarkViperAU",
         "'This game sucks! What is this game? I've been playing this game for over 8,000 hours!'\n\n                              - DarkViperAU",
         "'That there is just a sad display boy.' - TF2 Engineer",
@@ -343,31 +340,36 @@ if ( CLIENT ) then
         "'You're a disgrace to the uniform.' - TF2 Soldier",
         "'This American boot just kicked your ass back to Russia' - TF2 Soldier",
         "'Your country did not prepare you for the level of violence you will meet on my battlefield!'\n\n                              - TF2 Soldier",
+        "Mission failed! We'll get them next time.",
+        "'Mr. Salieri sends his regards' - Vito Scaletta",
+        "'For the last ten years, all I done was kill. \nI killed for my country, I killed for my family, I killed anybody that got in my way' \n- Vito Scaletta"
+    }
+    local tbl_info_quotes = {
         "Use WASD to move out of danger, then use M1 to attack.",
         "You've been killed. Watch for your healthbar when it gets low.",
-        "Sometimes It's wise to flee from danger, rather than fighting it.",
+        "Sometimes it's wise to flee from danger, rather than fighting it.",
         "Your Heads-Up Display will always show your healthbar, collect medkits to heal.",
         "Use cover to protect yourself against enemy fire.",
-        "You can throw back grenades by pressing Use, then quickly lob it back.",
-        "You can use the Gravity Gun to lob objects at enemies.",
+        "You can throw back grenades by pressing the Use key, then quickly lob it back.",
+        "The Gravity Gun can lob various objects towards enemies.",
         "Remember to pick up Armor, you will survive longer with Armor.",
         "When you're almost dry on your primary weapon, always switch to another weapon. It's faster than reloading.",
-        "Mission failed! We'll get them next time.",
         "Use your surrounding environment to your advantage.",
         "Staying in one spot is a recipe for diaster. Keep moving to avoid getting hurt!",
         "Use props to your advantage by blocking incoming enemy fire.",
-        "'Mr. Salieri sends his regards' - Vito Scaletta",
-        "'For the last ten years, all I done was kill. \nI killed for my country, I killed for my family, I killed anybody that got in my way' \n- Vito Scaletta",
         "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed.",
-        "Throw grenades back at enemies before the grenade detonates."
+        "Throw grenades back at enemies before the grenade detonates.",
+        "Aiming at the head will almost certain result in a insta-kill.",
+        "The Gravity Gun can effectively launch enemy-thrown grenades farther than normally throwing them."
     }
     local tbl_cod_all_quotes = {}
-    table.Add(tbl_cod_all_quotes, tbl_cod_quotes)
-    table.Add(tbl_cod_all_quotes, tbl_cod_c2a_quotes)
-    table.Add(tbl_cod_all_quotes, tbl_custom_quotes)
-    -- print(#tbl_cod_all_quotes, #tbl_cod_quotes, #tbl_cod_c2a_quotes, #tbl_custom_quotes)
+    table.Add(tbl_cod_all_quotes, tbl_callofduty_quotes)
+    table.Add(tbl_cod_all_quotes, tbl_callofduty2_c2a_quotes)
+    table.Add(tbl_cod_all_quotes, tbl_funny_quotes)
+    table.Add(tbl_cod_all_quotes, tbl_info_quotes)
+    -- print(#tbl_cod_all_quotes, #tbl_callofduty_quotes, #tbl_callofduty2_c2a_quotes, #tbl_funny_quotes, #tbl_info_quotes)
     -- PrintTable(tbl_cod_all_quotes)
-    local tbl_cod_nothing = {
+    local tbl_noquotes = {
         
         ""
     }
@@ -385,19 +387,21 @@ if ( CLIENT ) then
                 else -- If we detect what killed us, then we display the quotes
                     if IsValid(Entity(data.entindex_inflictor)) then
                         if cod_quotes:GetInt() == 0 then
-                            quote = tbl_cod_nothing[math.random(#tbl_cod_nothing)]
+                            quote = tbl_noquotes[math.random(#tbl_noquotes)]
                         elseif cod_quotes:GetInt() == 1 then
-                            quote = tbl_cod_quotes[math.random(#tbl_cod_quotes)]
+                            quote = tbl_callofduty_quotes[math.random(#tbl_callofduty_quotes)]
                         elseif cod_quotes:GetInt() == 2 then
-                            quote = tbl_cod_c2a_quotes[math.random(#tbl_cod_c2a_quotes)]
+                            quote = tbl_callofduty2_c2a_quotes[math.random(#tbl_callofduty2_c2a_quotes)]
                         elseif cod_quotes:GetInt() == 3 then
-                            quote = tbl_custom_quotes[math.random(#tbl_custom_quotes)]
+                            quote = tbl_funny_quotes[math.random(#tbl_funny_quotes)]
                         elseif cod_quotes:GetInt() == 4 then
+                            quote = tbl_info_quotes[math.random(#tbl_info_quotes)]
+                        elseif cod_quotes:GetInt() == 5 then
                             quote = tbl_cod_all_quotes[math.random(#tbl_cod_all_quotes)]
                         end
                     end
                 end
-                print(quote)
+                --print(quote)
 
                 local sndint = deathsound:GetInt()
                 local sndtbl = {
@@ -428,7 +432,6 @@ if ( CLIENT ) then
                 end
 
                 if deathcamera_effect:GetBool() then
-
                     hook.Add( "CalcView", "COD_Deathcamera", function(ply)
                         
                         local ply_ragdoll = ply:GetObserverTarget()
@@ -451,6 +454,8 @@ if ( CLIENT ) then
 
                 local scrw, scrh, start = ScrW(), ScrH(), SysTime()
                 local alphalerp
+                local flash
+                local start_flash = SysTime()
 
                 -- Adds the main text on screen
                 hook.Add("HUDPaint", "HOOK_COD_DEATH_QUOTES", function()
@@ -459,16 +464,24 @@ if ( CLIENT ) then
                 end)
 
                 -- Add some nice Post-processing effects
-                hook.Add("RenderScreenspaceEffects", "COD_MotionBlurEffects", function()
-                    DrawMotionBlur(0.1, 0.9, 0 )
-                    DrawToyTown( 1, ScrH() )
-                end)
+                if blureffects:GetBool() then
+                    hook.Add("RenderScreenspaceEffects", "COD_MotionBlurEffects", function()
+                        DrawMotionBlur(0.1, 0.9, 0 )
+                        DrawToyTown( 1, ScrH() )
+                    end)
+                end
 
                 -- Create a "reminder" message after fading to black.
                 timer.Create("COD_DEATHNOISE_AMB", fadetbl[sndint], 1, function ()
-                    ply:EmitSound("deathsounds/deathstinger" .. math.random(2) .. ".ogg")
+                    ply:EmitSound("deathsounds/deathstinger" .. math.random(4) .. ".ogg")
                     hook.Add("HUDPaint", "HOOK_COD_DEADREMINDER", function()
-                        draw.DrawText("Press JUMP or MOUSE 1 to respawn!", "CloseCaption_Bold", scrw * 0.6, scrh * 0.8, Color(255,255,255))
+                        surface.SetDrawColor( 0, 0, 0, 136 )
+                        surface.DrawRect( 1145, 858, 400, 40 ) -- Creates a rectangle box to cover behind the remind text, for style I suppose.
+                        flash = Lerp( math.Clamp(SysTime() - start_flash, 0, 0.65), 0, 255 )
+                        if SysTime() - start_flash > 0.65 then -- Makes the reminder text flash
+                            start_flash = SysTime()
+                        end
+                        draw.DrawText("Press JUMP or MOUSE 1 to respawn!", "CloseCaption_Bold", scrw * 0.6, scrh * 0.8, Color(239,255,0, flash))
                     end)
                 end)
             end
@@ -483,9 +496,11 @@ if ( CLIENT ) then
             hook.Remove("RenderScreenspaceEffects", "COD_MotionBlurEffects")
             hook.Remove("HUDPaint", "HOOK_COD_DEATH_QUOTES")
             hook.Remove("HUDPaint", "HOOK_COD_DEADREMINDER")
-            -- Stop all sounds upon spawning
+            -- Stop all sounds upon spawning (A better way to stop sounds?)
             LocalPlayer():StopSound("deathsounds/deathstinger1.ogg")
             LocalPlayer():StopSound("deathsounds/deathstinger2.ogg")
+            LocalPlayer():StopSound("deathsounds/deathstinger3.ogg")
+            LocalPlayer():StopSound("deathsounds/deathstinger4.ogg")
             LocalPlayer():StopSound("deathsounds/mw2_death.ogg")
             LocalPlayer():StopSound("deathsounds/cod3_death1.ogg")
             LocalPlayer():StopSound("deathsounds/cod3_death2.ogg")
