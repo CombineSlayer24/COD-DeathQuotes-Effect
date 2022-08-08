@@ -401,7 +401,7 @@ if ( CLIENT ) then
                         end
                     end
                 end
-                --print(quote)
+                print(quote)
 
                 local sndint = deathsound:GetInt()
                 local sndtbl = {
@@ -519,9 +519,12 @@ if ( CLIENT ) then
     end)
 end
 
---[[ function SaveToJson()
-    if !file.Exists("",'DATA') then
-        file.CreateDir("")
+--[[ function UserCreatedQuotes()
+    
+end
+
+function CreateJsonFile()
+    if !file.Exists("cod_quotes_usermade.json",'DATA') then
+        file.Write("cod_quotes_usermade.json",util.TableToJSON({},true))
     end
-    file.Write("")
-end ]]--
+end ]]
