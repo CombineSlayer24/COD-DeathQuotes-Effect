@@ -481,7 +481,7 @@ if ( CLIENT ) then
                         if SysTime() - start_flash > 0.65 then -- Makes the reminder text flash
                             start_flash = SysTime()
                         end
-                        draw.DrawText("Press JUMP or MOUSE 1 to respawn!", "CloseCaption_Bold", scrw * 0.6, scrh * 0.8, Color(239,255,0, flash))
+                        draw.DrawText("Press " .. input.LookupBinding("+jump") .. " or " .. input.LookupBinding("+attack") .. " to respawn!", "CloseCaption_Bold", scrw * 0.6, scrh * 0.8, Color(239,255,0, flash))
                     end)
                 end)
             end
