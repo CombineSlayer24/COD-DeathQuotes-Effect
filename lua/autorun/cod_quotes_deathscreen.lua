@@ -360,7 +360,8 @@ if ( CLIENT ) then
         "Use grenades to flush enemies out of their cover, they will run out of their cover, leaving them openly exposed.",
         "Throw grenades back at enemies before the grenade detonates.",
         "Aiming at the head will almost certain result in a insta-kill.",
-        "The Gravity Gun can effectively launch enemy-thrown grenades farther than normally throwing them."
+        "The Gravity Gun can effectively launch enemy-thrown grenades farther than normally throwing them.",
+		"Most enemies cannot climb ladders. Advanced NPCs/AIs could."
     }
     local tbl_cod_all_quotes = {}
     table.Add(tbl_cod_all_quotes, tbl_callofduty_quotes)
@@ -383,7 +384,19 @@ if ( CLIENT ) then
 
                 -- Prevents the message "nil" from appearing
                 if !IsValid(Entity(data.entindex_inflictor)) or not Entity(data.entindex_inflictor):GetClass() then
-                    quote = tbl_cod_all_quotes[math.random(#tbl_cod_all_quotes)]
+                    if cod_quotes:GetInt() == 0 then
+                        quote = tbl_noquotes[math.random(#tbl_noquotes)]
+                    elseif cod_quotes:GetInt() == 1 then
+                        quote = tbl_callofduty_quotes[math.random(#tbl_callofduty_quotes)]
+                    elseif cod_quotes:GetInt() == 2 then
+                        quote = tbl_callofduty2_c2a_quotes[math.random(#tbl_callofduty2_c2a_quotes)]
+                    elseif cod_quotes:GetInt() == 3 then
+                        quote = tbl_funny_quotes[math.random(#tbl_funny_quotes)]
+                    elseif cod_quotes:GetInt() == 4 then
+                        quote = tbl_info_quotes[math.random(#tbl_info_quotes)]
+                    elseif cod_quotes:GetInt() == 5 then
+                        quote = tbl_cod_all_quotes[math.random(#tbl_cod_all_quotes)]
+                    end
                 else -- If we detect what killed us, then we display the quotes
                     if IsValid(Entity(data.entindex_inflictor)) then
                         if cod_quotes:GetInt() == 0 then
